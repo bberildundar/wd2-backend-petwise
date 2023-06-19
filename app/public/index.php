@@ -30,5 +30,15 @@ $router->delete('/categories/(\d+)', 'CategoryController@delete');
 // routes for the users endpoint
 $router->post('/users/login', 'UserController@login');
 
+
+///////
+
+// routes for the VETS endpoint
+$router->get('/vets', 'VetController@getAll');
+$router->get('/vets/(\d+)', 'VetController@getById');
+$router->post('/vets', 'VetController@create');
+
+
+
 // Run it!
 $router->run();
