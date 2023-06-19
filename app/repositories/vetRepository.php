@@ -76,6 +76,7 @@ class VetRepository extends Repository
             $stmt->bindValue(':lastName', $vet->getLastName(), PDO::PARAM_STR);
             $stmt->bindValue(':specialization', $vet->getSpecialization(), PDO::PARAM_STR);
             $stmt->bindValue(':imageURL', $vet->getImageURL(), PDO::PARAM_STR);
+            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
 
             $stmt->execute();
 
