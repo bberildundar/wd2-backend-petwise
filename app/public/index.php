@@ -27,17 +27,28 @@ $router->post('/categories', 'CategoryController@create');
 $router->put('/categories/(\d+)', 'CategoryController@update');
 $router->delete('/categories/(\d+)', 'CategoryController@delete');
 
-// routes for the users endpoint
-$router->post('/users/login', 'UserController@login');
 
 
 ///////
+
+
+// routes for the USERS endpoint
+$router->post('/users/login', 'UserController@login');
+$router->get('/users', 'UserController@getAll');
+$router->get('/users/(\d+)', 'UserController@getById');
+$router->get('/users/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})',
+ 'UserController@getByEmail'); /* made this like that so it can match with the email addresses. 
+ because otherwise it searches for getById method*/
+$router->post('/users', 'UserController@create');
+$router->put('/users/(\d+)', 'UserController@update');
+$router->delete('/users/(\d+)', 'UserController@delete');
 
 // routes for the VETS endpoint
 $router->get('/vets', 'VetController@getAll');
 $router->get('/vets/(\d+)', 'VetController@getById');
 $router->post('/vets', 'VetController@create');
-
+$router->put('/vets/(\d+)', 'VetController@update');
+$router->delete('/vets/(\d+)', 'VetController@delete');
 
 
 // Run it!

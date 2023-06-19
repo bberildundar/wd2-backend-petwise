@@ -13,7 +13,7 @@ class VetController extends Controller{
         $this->vetService = new VetService();
     }
 
-    function getAll(){
+    public function getAll(){
         $offset = NULL;
         $limit = NULL;
 
@@ -31,14 +31,14 @@ class VetController extends Controller{
 
     public function getById($id)
     {
-        $product = $this->vetService->getById($id);
+        $vet = $this->vetService->getById($id);
 
-        if (!$product) {
+        if (!$vet) {
             $this->respondWithError(404, "Vet not found");
             return;
         }
 
-        $this->respond($product);
+        $this->respond($vet);
     }
 
     public function create()
@@ -60,5 +60,35 @@ class VetController extends Controller{
         }
 
         $this->respond($newVet);
+    }
+
+    public function update($id) {
+        try {
+            $requestBody = file_get_contents('php://input');
+            $vetData = json_decode($requestBody);
+
+            $vet = new Vet();
+                $vet->setFirstName($vetData->firstName)
+                    ->setLastName($vetData->lastName)
+                    ->setSpecialization($vetData->specialization)
+                    ->setImageURL($vetData->imageURL);
+            
+            $vetToUpdate = $this->vetService->update($vet, $id);
+        } catch (Exception $e) {
+            $this->respondWithError(500, $e->getMessage());
+        }
+
+        $this->respond($vetToUpdate);
+    }
+
+    public function delete($id)
+    {
+        try {
+            $this->vetService->delete($id);
+        } catch (Exception $e) {
+            $this->respondWithError(500, $e->getMessage());
+        }
+
+        $this->respond(true);
     }
 }

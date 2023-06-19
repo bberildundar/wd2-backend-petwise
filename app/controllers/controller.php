@@ -56,17 +56,24 @@ class Controller
     }
 
     function createObjectFromPostedJson($className)
-    {
-        $json = file_get_contents('php://input');
-        $data = json_decode($json);
+{
+    $json = file_get_contents('php://input');
+    $data = json_decode($json);
 
-        $object = new $className();
-        foreach ($data as $key => $value) {
-            if(is_object($value)) {
-                continue;
-            }
-            $object->{$key} = $value;
+    $object = new $className();
+    foreach ($data as $key => $value) {
+        if (is_object($value)) {
+            continue;
         }
-        return $object;
+        
+        /*this method was using the direst variable like user->. But with 
+        the following code it usese the setter method if available:*/
+        $setterMethod = 'set' . ucfirst($key);
+        if (method_exists($object, $setterMethod)) {
+            $object->{$setterMethod}($value);
+        }
     }
+    return $object;
+}
+
 }

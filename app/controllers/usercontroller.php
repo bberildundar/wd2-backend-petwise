@@ -4,16 +4,107 @@ namespace Controllers;
 
 use Exception;
 use Services\UserService;
+use Models\User;
 use \Firebase\JWT\JWT;
 
 class UserController extends Controller
 {
-    private $service;
+    private $userService;
 
     // initialize services
     function __construct()
     {
-        $this->service = new UserService();
+        $this->userService = new UserService();
+    }
+
+    public function getAll(){
+        $offset = NULL;
+        $limit = NULL;
+
+        if (isset($_GET["offset"]) && is_numeric($_GET["offset"])) {
+            $offset = $_GET["offset"];
+        }
+        if (isset($_GET["limit"]) && is_numeric($_GET["limit"])) {
+            $limit = $_GET["limit"];
+        }
+
+        $vets = $this->userService->getAll($offset, $limit);
+
+        $this->respond($vets);
+    }
+
+    public function getByEmail($email)
+    {
+        $user = $this->userService->getByEmail($email);
+
+        if (!$user) {
+            $this->respondWithError(404, "User with email ". $email . " not found");
+            return;
+        }
+
+        $this->respond($user);
+    }
+
+    public function getById($id)
+    {
+        $user = $this->userService->getById($id);
+
+        if (!$user) {
+            $this->respondWithError(404, "User with id ". $id . " not found");
+            return;
+        }
+
+        $this->respond($user);
+    }
+
+    public function create()
+    {
+        try {
+            $requestBody = file_get_contents('php://input');
+            $userData = json_decode($requestBody);
+    
+            $newUser = new User();
+            $newUser->setEmail($userData->email)
+                ->setPassword($userData->password)
+                ->setRole($userData->role);                
+            
+            $newUser = $this->userService->create($newUser);
+
+        } catch (Exception $e) {
+            $this->respondWithError(500, $e->getMessage());
+        }
+
+        $this->respond($newUser);
+    }
+
+    public function update($id) {
+        try {
+            $requestBody = file_get_contents('php://input');
+            $userData = json_decode($requestBody);
+    
+            $user = new User();
+            $user->setEmail($userData->email)
+                ->setPassword($userData->password)
+                ->setRole($userData->role);                
+            
+            
+            $userToUpdate = $this->userService->update($user, $id);
+        } catch (Exception $e) {
+            $this->respondWithError(500, $e->getMessage());
+        }
+
+        $this->respond($userToUpdate);
+    }
+
+    public function delete($id)
+    {
+        try {
+            $this->userService->delete($id);
+        } catch (Exception $e) {
+            $this->respondWithError(500, $e->getMessage());
+        }
+
+        $this->respond(true);
     }
 
     public function login() {
@@ -22,7 +113,7 @@ class UserController extends Controller
         $postedUser = $this->createObjectFromPostedJson("Models\\User");
 
         // get user from db
-        $user = $this->service->checkUsernamePassword($postedUser->username, $postedUser->password);
+        $user = $this->userService->checkUsernamePassword($postedUser->getEmail(), $postedUser->getPassword());
 
         // if the method returned false, the username and/or password were incorrect
         if(!$user) {
@@ -57,9 +148,8 @@ class UserController extends Controller
             "nbf" => $notbefore,
             "exp" => $expire,
             "data" => array(
-                "id" => $user->id,
-                "username" => $user->username,
-                "email" => $user->email
+                "id" => $user->getId(),
+                "email" => $user->getEmail()
         ));
 
         $jwt = JWT::encode($payload, $secret_key, 'HS256');
@@ -68,7 +158,7 @@ class UserController extends Controller
             array(
                 "message" => "Successful login.",
                 "jwt" => $jwt,
-                "username" => $user->username,
+                "email" => $user->getEmail(),
                 "expireAt" => $expire
             );
     }    
