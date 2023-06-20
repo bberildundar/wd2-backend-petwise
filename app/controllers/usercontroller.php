@@ -149,7 +149,8 @@ class UserController extends Controller
             "exp" => $expire,
             "data" => array(
                 "id" => $user->getId(),
-                "email" => $user->getEmail()
+                "email" => $user->getEmail(),
+                "role" => $user->getRole()
         ));
 
         $jwt = JWT::encode($payload, $secret_key, 'HS256');
