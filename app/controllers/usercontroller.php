@@ -18,6 +18,11 @@ class UserController extends Controller
     }
 
     public function getAll(){
+        $admin = $this->checkForAdmin();
+        if (!$admin) {
+            return;
+        }
+        
         $offset = NULL;
         $limit = NULL;
 
@@ -47,6 +52,11 @@ class UserController extends Controller
 
     public function getById($id)
     {
+        $admin = $this->checkForAdmin();
+        if (!$admin) {
+            return;
+        }
+
         $user = $this->userService->getById($id);
 
         if (!$user) {
@@ -78,6 +88,10 @@ class UserController extends Controller
     }
 
     public function update($id) {
+        $admin = $this->checkForAdmin();
+        if (!$admin) {
+            return;
+        }
         try {
             $requestBody = file_get_contents('php://input');
             $userData = json_decode($requestBody);
@@ -98,6 +112,10 @@ class UserController extends Controller
 
     public function delete($id)
     {
+        $admin = $this->checkForAdmin();
+        if (!$admin) {
+            return;
+        }
         try {
             $this->userService->delete($id);
         } catch (Exception $e) {
@@ -128,7 +146,7 @@ class UserController extends Controller
     }
 
     public function generateJwt($user) {
-        $secret_key = "YOUR_SECRET_KEY";
+        $secret_key = "megasuperamazinglysecurekey";
 
         $issuer = "THE_ISSUER"; // this can be the domain/servername that issues the token
         $audience = "THE_AUDIENCE"; // this can be the domain/servername that checks the token

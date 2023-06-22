@@ -6,6 +6,7 @@ use PDO;
 use PDOException;
 use Repositories\Repository;
 use Models\User;
+use Models\Role;
 
 class UserRepository extends Repository
 {
@@ -23,8 +24,17 @@ class UserRepository extends Repository
             }
             $stmt->execute();
 
-            $stmt->setFetchMode(PDO::FETCH_CLASS, 'Models\User');
-            $users = $stmt->fetchAll();
+            $users = [];
+
+            while ($row = $stmt->fetch()) {
+                $user = new User();
+                $user->setId($row['id']);
+                $user->setEmail($row['email']);
+                $user->setPassword($row['password']);
+                $user->setRole($row['role']);
+
+                $users[] = $user;
+            }
 
             return $users;
         } catch (PDOException $e) {
@@ -39,9 +49,15 @@ class UserRepository extends Repository
             $stmt->bindParam(':id', $id);
             $stmt->execute();
 
-            $stmt->setFetchMode(PDO::FETCH_CLASS, 'Models\User');
-            $user = $stmt->fetch();
-
+            $user = null;
+            
+            while ($row = $stmt->fetch()) {
+                $user = new User();
+                $user->setId($row['id']);
+                $user->setEmail($row['email']);
+                $user->setPassword($row['password']);
+                $user->setRole($row['role']);
+            }
             return $user;
         } catch (PDOException $e) {
             echo $e;
@@ -55,8 +71,15 @@ class UserRepository extends Repository
             $stmt->bindValue(':email', $email, PDO::PARAM_STR);
             $stmt->execute();
 
-            $stmt->setFetchMode(PDO::FETCH_CLASS, 'Models\User');
-            $user = $stmt->fetch();
+            $user = null;
+
+            while ($row = $stmt->fetch()) {
+                $user = new User();
+                $user->setId($row['id']);
+                $user->setEmail($row['email']);
+                $user->setPassword($row['password']);
+                $user->setRole($row['role']);
+            }
 
             return $user;
 
@@ -72,7 +95,7 @@ class UserRepository extends Repository
 
             $stmt->bindValue(':email', $user->getEmail(), PDO::PARAM_STR);
             $stmt->bindValue(':password', $this->hashPassword($user->getPassword()), PDO::PARAM_STR);
-            $stmt->bindValue(':role', $user->getRole(), PDO::PARAM_BOOL);
+            $stmt->bindValue(':role', $user->getRole()->toInt(), PDO::PARAM_INT);
 
             $stmt->execute();
 
@@ -90,7 +113,7 @@ class UserRepository extends Repository
 
             $stmt->bindValue(':email', $user->getEmail(), PDO::PARAM_STR);
             $stmt->bindValue(':password', $this->hashPassword($user->getPassword()), PDO::PARAM_STR);
-            $stmt->bindValue(':role', $user->getRole(), PDO::PARAM_BOOL);
+            $stmt->bindValue(':role', $user->getRole()->toInt(), PDO::PARAM_INT);
             $stmt->bindValue(':id', $id, PDO::PARAM_INT);
 
             $stmt->execute();
@@ -124,8 +147,19 @@ class UserRepository extends Repository
             $stmt->bindParam(':email', $email);
             $stmt->execute();
 
-            $stmt->setFetchMode(PDO::FETCH_CLASS, 'Models\User');
-            $user = $stmt->fetch();
+            $user = null;
+
+            while ($row = $stmt->fetch()) {
+                $user = new User();
+                $user->setId($row['id']);
+                $user->setEmail($row['email']);
+                $user->setPassword($row['password']);
+                $user->setRole($row['role']);
+            }
+
+            if (!$user) {
+                return false;
+            }
 
             // verify if the password matches the hash in the database
             $result = $this->verifyPassword($password, $user->getPassword());

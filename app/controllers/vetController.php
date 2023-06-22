@@ -14,6 +14,7 @@ class VetController extends Controller{
     }
 
     public function getAll(){
+        //im not checking for token because visitors should also see the vets.
         $offset = NULL;
         $limit = NULL;
 
@@ -31,6 +32,10 @@ class VetController extends Controller{
 
     public function getById($id)
     {
+        $admin = $this->checkForAdmin();
+        if (!$admin) {
+            return;
+        }
         $vet = $this->vetService->getById($id);
 
         if (!$vet) {
@@ -43,6 +48,11 @@ class VetController extends Controller{
 
     public function create()
     {
+        $admin = $this->checkForAdmin();
+        if (!$admin) {
+            return;
+        }
+
         try {
             $requestBody = file_get_contents('php://input');
             $vetData = json_decode($requestBody);
@@ -63,6 +73,10 @@ class VetController extends Controller{
     }
 
     public function update($id) {
+        $admin = $this->checkForAdmin();
+        if (!$admin) {
+            return;
+        }
         try {
             $requestBody = file_get_contents('php://input');
             $vetData = json_decode($requestBody);
@@ -83,6 +97,10 @@ class VetController extends Controller{
 
     public function delete($id)
     {
+        $admin = $this->checkForAdmin();
+        if (!$admin) {
+            return;
+        }
         try {
             $this->vetService->delete($id);
         } catch (Exception $e) {

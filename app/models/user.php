@@ -1,12 +1,13 @@
 <?php
 
 namespace Models;
+use Models\Role;
 
 class User implements \JsonSerializable {
     private int $id;
     private string $email;
     private string $password;
-    private bool $role;
+    private Role $role;
 
     #[\ReturnTypeWillChange]
     public function jsonSerialize() {
@@ -26,7 +27,7 @@ class User implements \JsonSerializable {
         return $this->password;
     }
 
-    public function getRole(): bool {
+    public function getRole(): Role {
         return $this->role;
     }
 
@@ -45,10 +46,9 @@ class User implements \JsonSerializable {
         return $this;
     }
 
-    public function setRole(bool $role): self {
-        $this->role = $role;
+    public function setRole(int $role): self {
+        $this->role = Role::tryFrom($role);
         return $this;
-    }
-   
+    }   
 }
 ?>
