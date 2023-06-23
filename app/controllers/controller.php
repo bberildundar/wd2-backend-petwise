@@ -5,36 +5,47 @@ namespace Controllers;
 use Exception;
 use \Firebase\JWT\JWT;
 use \Firebase\JWT\Key;
+use Models\Role;
 
 class Controller
 {
     function checkForJwt() {
-         // Check for token header
          if(!isset($_SERVER['HTTP_AUTHORIZATION'])) {
             $this->respondWithError(401, "No token provided");
             return;
         }
 
-        // Read JWT from header
         $authHeader = $_SERVER['HTTP_AUTHORIZATION'];
-        // Strip the part "Bearer " from the header
         $arr = explode(" ", $authHeader);
         $jwt = $arr[1];
 
-        // Decode JWT
-        $secret_key = "YOUR_SECRET_KEY";
+        $secret_key = "megasuperamazinglysecurekey";
 
         if ($jwt) {
             try {
                 $decoded = JWT::decode($jwt, new Key($secret_key, 'HS256'));
-                // username is now found in
-                // echo $decoded->data->username;
+
                 return $decoded;
             } catch (Exception $e) {
                 $this->respondWithError(401, $e->getMessage());
                 return;
             }
         }
+    }
+
+    function checkForAdmin():bool {
+        $token = $this->checkForJWT();
+
+        if (!$token) {
+            return false;
+        }
+
+        if (Role::tryFrom($token->data->role) !== Role::Admin) {
+            $this->respondWithError(403, "Access denied. You are not authorised for this action.");
+            return false;
+        }
+
+        return true;
     }
 
     function respond($data)
@@ -66,7 +77,7 @@ class Controller
             continue;
         }
         
-        /*this method was using the direst variable like user->. But with 
+        /*this method was using the direct variable like user->. But with 
         the following code it usese the setter method if available:*/
         $setterMethod = 'set' . ucfirst($key);
         if (method_exists($object, $setterMethod)) {
