@@ -19,7 +19,6 @@ class Controller
         $arr = explode(" ", $authHeader);
         $jwt = $arr[1];
 
-        // Decode JWT
         $secret_key = "megasuperamazinglysecurekey";
 
         if ($jwt) {

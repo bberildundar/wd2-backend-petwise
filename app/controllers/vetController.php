@@ -13,8 +13,9 @@ class VetController extends Controller{
         $this->vetService = new VetService();
     }
 
-    public function getAll(){
-        //im not checking for token because visitors should also see the vets.
+    public function getAll(){ //used in homepage while showing the vets
+
+        //im not checking for token because visitors (not logged in) should also see the vets.
         $offset = NULL;
         $limit = NULL;
 
@@ -30,7 +31,7 @@ class VetController extends Controller{
         $this->respond($vets);
     }
 
-    public function getById($id)
+    public function getById($id) //used while editing the vet
     {
         $admin = $this->checkForAdmin();
         if (!$admin) {
@@ -46,7 +47,7 @@ class VetController extends Controller{
         $this->respond($vet);
     }
 
-    public function create()
+    public function create() //used while adding the vet 
     {
         $admin = $this->checkForAdmin();
         if (!$admin) {
@@ -72,7 +73,7 @@ class VetController extends Controller{
         $this->respond($newVet);
     }
 
-    public function update($id) {
+    public function update($id) { //used while updating the vet info
         $admin = $this->checkForAdmin();
         if (!$admin) {
             return;
@@ -95,7 +96,7 @@ class VetController extends Controller{
         $this->respond($vetToUpdate);
     }
 
-    public function delete($id)
+    public function delete($id) //used while deleting the vet from the system
     {
         $admin = $this->checkForAdmin();
         if (!$admin) {

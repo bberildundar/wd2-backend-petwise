@@ -167,7 +167,6 @@ class UserRepository extends Repository
             if (!$result)
                 return false;
 
-            // do not pass the password hash to the caller
             $user->setPassword("");
 
             return $user;
@@ -176,13 +175,11 @@ class UserRepository extends Repository
         }
     }
 
-    // hash the password (currently uses bcrypt)
     function hashPassword($password)
     {
         return password_hash($password, PASSWORD_DEFAULT);
     }
 
-    // verify the password hash
     function verifyPassword($input, $hash)
     {
         return password_verify($input, $hash);

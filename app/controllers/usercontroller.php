@@ -17,7 +17,7 @@ class UserController extends Controller
         $this->userService = new UserService();
     }
 
-    public function getAll(){
+    public function getAll(){ //used while an admin views the Users list
         $admin = $this->checkForAdmin();
         if (!$admin) {
             return;
@@ -38,7 +38,7 @@ class UserController extends Controller
         $this->respond($vets);
     }
 
-    public function getByEmail($email)
+    public function getByEmail($email) //used for logging in.
     {
         $user = $this->userService->getByEmail($email);
 
@@ -50,7 +50,7 @@ class UserController extends Controller
         $this->respond($user);
     }
 
-    public function getById($id)
+    public function getById($id) //used while editing a user
     {
         $admin = $this->checkForAdmin();
         if (!$admin) {
@@ -67,7 +67,7 @@ class UserController extends Controller
         $this->respond($user);
     }
 
-    public function create()
+    public function create() //used while registering
     {
         try {
             $requestBody = file_get_contents('php://input');
@@ -87,7 +87,7 @@ class UserController extends Controller
         $this->respond($newUser);
     }
 
-    public function update($id) {
+    public function update($id) { //used while updating the user
         $admin = $this->checkForAdmin();
         if (!$admin) {
             return;
@@ -110,7 +110,7 @@ class UserController extends Controller
         $this->respond($userToUpdate);
     }
 
-    public function delete($id)
+    public function delete($id) //used while deleting the user
     {
         $admin = $this->checkForAdmin();
         if (!$admin) {
@@ -126,20 +126,16 @@ class UserController extends Controller
     }
 
     public function login() {
-
-        // read user data from request body
+        
         $postedUser = $this->createObjectFromPostedJson("Models\\User");
 
-        // get user from db
         $user = $this->userService->checkUsernamePassword($postedUser->getEmail(), $postedUser->getPassword());
 
-        // if the method returned false, the username and/or password were incorrect
         if(!$user) {
             $this->respondWithError(401, "Invalid login");
             return;
         }
 
-        // generate jwt
         $tokenResponse = $this->generateJwt($user);       
 
         $this->respond($tokenResponse);    
@@ -148,17 +144,13 @@ class UserController extends Controller
     public function generateJwt($user) {
         $secret_key = "megasuperamazinglysecurekey";
 
-        $issuer = "THE_ISSUER"; // this can be the domain/servername that issues the token
-        $audience = "THE_AUDIENCE"; // this can be the domain/servername that checks the token
+        $issuer = "THE_ISSUER"; 
+        $audience = "THE_AUDIENCE"; 
 
         $issuedAt = time(); // issued at
         $notbefore = $issuedAt; //not valid before 
-        $expire = $issuedAt + 600; // expiration time is set at +600 seconds (10 minutes)
+        $expire = $issuedAt + 600; //(10 minutes)
 
-        // JWT expiration times should be kept short (10-30 minutes)
-        // A refresh token system should be implemented if we want clients to stay logged in for longer periods
-
-        // note how these claims are 3 characters long to keep the JWT as small as possible
         $payload = array(
             "iss" => $issuer,
             "aud" => $audience,
@@ -178,6 +170,7 @@ class UserController extends Controller
                 "message" => "Successful login.",
                 "jwt" => $jwt,
                 "email" => $user->getEmail(),
+                "role" => $user->getRole(),
                 "expireAt" => $expire
             );
     }    
