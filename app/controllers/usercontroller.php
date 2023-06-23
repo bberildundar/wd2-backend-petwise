@@ -76,7 +76,14 @@ class UserController extends Controller
             $newUser = new User();
             $newUser->setEmail($userData->email)
                 ->setPassword($userData->password)
-                ->setRole($userData->role);                
+                ->setRole($userData->role);    
+                
+            $user = $this->userService->checkEmail($newUser->getEmail());
+
+            if(!$user) {
+                $this->respondWithError(409, "Email is already is in use."); //used 409 because it's a conflict error. source: https://umbraco.com/knowledge-base/http-status-codes/
+                return;
+            }
             
             $newUser = $this->userService->create($newUser);
 
@@ -129,7 +136,7 @@ class UserController extends Controller
         
         $postedUser = $this->createObjectFromPostedJson("Models\\User");
 
-        $user = $this->userService->checkUsernamePassword($postedUser->getEmail(), $postedUser->getPassword());
+        $user = $this->userService->checkEmailPassword($postedUser->getEmail(), $postedUser->getPassword());
 
         if(!$user) {
             $this->respondWithError(401, "Invalid login");

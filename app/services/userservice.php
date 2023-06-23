@@ -35,8 +35,12 @@ class UserService {
         return $this->userRepository->delete($id);
     }
 
-    public function checkUsernamePassword($username, $password) {
-        return $this->userRepository->checkEmailPassword($username, $password);
+    public function checkEmailPassword($email, $password) {
+        return $this->userRepository->checkEmailPassword($email, $password);
+    }
+
+    public function checkEmail($email) {
+        return $this->userRepository->checkEmail($email);
     }
 }
 
