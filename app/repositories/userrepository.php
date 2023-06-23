@@ -175,6 +175,35 @@ class UserRepository extends Repository
         }
     }
 
+    function checkEmail($email) //checking email if it's already is in use
+    {
+        try {           
+            $stmt = $this->connection->prepare("SELECT id, email, password, role FROM user WHERE email = :email");
+            $stmt->bindParam(':email', $email);
+            $stmt->execute();
+
+            $user = null;
+
+            while ($row = $stmt->fetch()) {
+                $user = new User();
+                $user->setId($row['id']);
+                $user->setEmail($row['email']);
+                $user->setPassword($row['password']);
+                $user->setRole($row['role']);
+            }
+
+            if (!$user) { 
+                return true; //if user doesnt exist
+            }
+
+            return false;
+
+
+        } catch (PDOException $e) {
+            echo $e;
+        }
+    }
+
     function hashPassword($password)
     {
         return password_hash($password, PASSWORD_DEFAULT);
